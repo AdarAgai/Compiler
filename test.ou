@@ -1,0 +1,25 @@
+/* Some checks */
+a, b: float;
+c: float;
+
+{
+ input(a);
+ input(b);
+ if (a < b && 3 == a)
+ {
+    if (a == 5)
+    {
+      output(a+b);
+    }
+    else
+    {
+      output(a-b);
+      output(a);
+      c = 5.5;
+    } 
+ }
+ else
+ {
+    output(b);
+ }
+}
