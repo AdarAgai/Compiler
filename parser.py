@@ -3,7 +3,7 @@ from lexer import CPLLexer
 from symbol_table import SymbolTable
 from quad_generator import QuadGenerator
 import sys
-from quad_result import QuadResult 
+
 
 class CPLParser(Parser):
 
@@ -14,50 +14,67 @@ class CPLParser(Parser):
         self.errors_found = False
         self.quad_generator = QuadGenerator(symbol_table=self.symbol_table)
 
-    @_('declarations stmt_block')
+    @_("declarations stmt_block")
     def program(self, p):
-        return QuadResult(p.declarations.code + p.stmt_block.code)
+        print(p.declarations + p.stmt_block)
+        return p.declarations + p.stmt_block
 
-    @_('declarations declaration')
+    @_("declarations declaration")
     def declarations(self, p):
-        return QuadResult(p.declarations.code + p.declaration.code)
+        return p.declarations + p.declaration
 
-    @_('')
+    @_("")
     def declarations(self, p):
-        return QuadResult("")
+        return ""
 
     @_('idlist ":" type ";"')
     def declaration(self, p):
         for var in p.idlist:
             if self.symbol_table.contains(var):
-                print(f"Error: Variable '{var}' redeclared on line {p.lineno}.", file=sys.stderr)
+                print(
+                    f"Error: Variable '{var}' redeclared on line {p.lineno}.",
+                    file=sys.stderr,
+                )
                 self.errors_found = True
             self.symbol_table.add(var, p.type)
-        return QuadResult("") 
+        return ""  # not sure
 
-    @_('INT')
+    @_("INT")
     def type(self, p):
-        return 'int'
+        return "int"
 
-    @_('FLOAT')
+    @_("FLOAT")
     def type(self, p):
-        return 'float'
+        return "float"
 
     @_('idlist "," ID')
     def idlist(self, p):
         if p.ID in p.idlist or self.symbol_table.contains(p.ID):
-            print(f"Error: Variable '{p.ID}' redeclared on line {p.lineno}.", file=sys.stderr)
+            print(
+                f"Error: Variable '{p.ID}' redeclared on line {p.lineno}.",
+                file=sys.stderr,
+            )
             self.errors_found = True
-        return p.idlist + [p.ID] # we don't use the code so we don't need the object
+        return p.idlist + [p.ID]
 
-    @_('ID')
+    @_("ID")
     def idlist(self, p):
         if self.symbol_table.contains(p.ID):
-            print(f"Error: Variable '{p.ID}' redeclared on line {p.lineno}.", file=sys.stderr)
+            print(
+                f"Error: Variable '{p.ID}' redeclared on line {p.lineno}.",
+                file=sys.stderr,
+            )
             self.errors_found = True
         return [p.ID]
 
-    @_('assignment_stmt', 'input_stmt', 'output_stmt', 'if_stmt', 'while_stmt', 'stmt_block')   
+    @_(
+        "assignment_stmt",
+        "input_stmt",
+        "output_stmt",
+        "if_stmt",
+        "while_stmt",
+        "stmt_block",
+    )
     def stmt(self, p):
         return p[0]
 
@@ -70,7 +87,7 @@ class CPLParser(Parser):
             return self.quad_generator.generate_assignment_stmt(p)
         except Exception:
             self.errors_found = True
-            return QuadResult("")
+            return ""
 
     @_('INPUT "(" ID ")" ";"')
     def input_stmt(self, p):
@@ -82,140 +99,142 @@ class CPLParser(Parser):
 
     @_('OUTPUT "(" expression ")" ";"')
     def output_stmt(self, p):
-        if p.expression.value is None: # do not need to print error here, it is already handled in expression
+        if (
+            p.expression.value is None
+        ):  # do not need to print error here, it is already handled in expression
             self.errors_found = True
-            return QuadResult("")
+            return ""
         return self.quad_generator.generate_output_stmt(p)
 
     @_('IF "(" boolexpr ")" stmt ELSE stmt')
     def if_stmt(self, p):
         if p.boolexpr.value is None:
             self.errors_found = True
-            return QuadResult("")
-        return self.quad_generator.generate_if_stmt(p, p.stmt0.code, p.stmt1.code) 
+            return ""
+        return self.quad_generator.generate_if_stmt(p, p.stmt0.code, p.stmt1.code)
 
-    @_('WHILE "(" boolexpr ")" stmt')      
+    @_('WHILE "(" boolexpr ")" stmt')
     def while_stmt(self, p):
         if p.boolexpr.value is None:
             self.errors_found = True
-            return QuadResult("")
+            return ""
         return self.quad_generator.generate_while_stmt(p)
 
     @_('"{" stmtlist "}"')
     def stmt_block(self, p):
-        return QuadResult(p.stmtlist.code)
+        return p.stmtlist.code
 
-    @_('stmt stmtlist')
+    @_("stmt stmtlist")
     def stmtlist(self, p):
-        return QuadResult(p.stmt.code + "\n" + p.stmtlist.code)
+        return p.stmt.code + "\n" + p.stmtlist.code
 
-    @_('')
+    @_("")
     def stmtlist(self, p):
-        return QuadResult("")
+        return ""
 
-    @_('boolexpr OR boolterm')
+    @_("boolexpr OR boolterm")
     def boolexpr(self, p):
         if p.boolexpr.value is None or p.boolterm.value is None:
             self.errors_found = True
-            return QuadResult("")
+            return ""
         return self.quad_generator.generate_or(p)
 
-    @_('boolterm')
+    @_("boolterm")
     def boolexpr(self, p):
         if p.boolterm.value is None:
             self.errors_found = True
-            return QuadResult("")
+            return ""
         return p.boolterm
 
-    @_('boolterm AND boolfactor')
+    @_("boolterm AND boolfactor")
     def boolterm(self, p):
         if p.boolterm.value is None or p.boolfactor.value is None:
             self.errors_found = True
             return ""
         return self.quad_generator.generate_and(p)
 
-    @_('boolfactor')
+    @_("boolfactor")
     def boolterm(self, p):
         if p.boolfactor.value is None:
             self.errors_found = True
-            return QuadResult("")
+            return ""
         return p.boolfactor
 
     @_('NOT "(" boolexpr ")"')
     def boolfactor(self, p):
         if p.boolexpr.value is None:
             self.errors_found = True
-            return QuadResult("")
+            return ""
         return self.quad_generator.generate_not(p)
 
-    @_('expression RELOP expression')
+    @_("expression RELOP expression")
     def boolfactor(self, p):
         if p.expression0.value is None or p.expression1.value is None:
             self.errors_found = True
-            return QuadResult("")
-        return self.quad_generator.generate_relop(p) 
+            return ""
+        return self.quad_generator.generate_relop(p)
 
-    @_('expression ADDOP term')
+    @_("expression ADDOP term")
     def expression(self, p):
         if p.expression.value is None or p.term.value is None:
             self.errors_found = True
-            return QuadResult("")
+            return ""
         try:
             return self.quad_generator.generate_expression(p)
         except Exception:
             self.errors_found = True
-            return QuadResult("")
+            return ""
 
-    @_('term')
+    @_("term")
     def expression(self, p):
         if p.term.value is None:
             self.errors_found = True
-            return QuadResult("")
+            return ""
         return p.term
 
-    @_('term MULOP factor')
+    @_("term MULOP factor")
     def term(self, p):
         if p.term.value is None or p.factor.value is None:
             self.errors_found = True
-            return QuadResult("")
+            return ""
         try:
             return self.quad_generator.generate_term(p)
         except Exception:
             self.errors_found = True
-            return QuadResult("")
+            return ""
 
-    @_('factor')
+    @_("factor")
     def term(self, p):
         if p.factor.value is None:
             self.errors_found = True
-            return QuadResult("")
+            return ""
         return p.factor
 
     @_('"(" expression ")"')
     def factor(self, p):
         if p.expression.value is None:
             self.errors_found = True
-            return QuadResult("")
+            return ""
         return p.expression
 
-    @_('CAST "(" expression ")"')  
+    @_('CAST "(" expression ")"')
     def factor(self, p):
         if p.expression.value is None:
             self.errors_found = True
-            return QuadResult("")
+            return ""
         try:
-            return self.quad_generator.generate_cast(p)  
+            return self.quad_generator.generate_cast(p)
         except Exception:
             self.errors_found = True
-            return QuadResult("")
+            return ""
 
-    @_('ID')
+    @_("ID")
     def factor(self, p):
         if not self.symbol_table.contains(p.ID):
             print(f"Error: Variable '{p.ID}' not declared.", file=sys.stderr)
             self.errors_found = True
         return p.ID
 
-    @_('NUM')
+    @_("NUM")
     def factor(self, p):
         return p.NUM
