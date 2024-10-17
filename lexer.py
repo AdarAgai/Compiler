@@ -4,7 +4,6 @@ import sys
 class CPLLexer(Lexer):
     tokens = {
         ELSE,
-        FLOAT,
         IF,
         INPUT,
         OUTPUT,
@@ -33,17 +32,20 @@ class CPLLexer(Lexer):
 
     INT = r'int'
     FLOAT = r'float'
-    NUM = r'\d+(\.\d*)?'
     INPUT = r'input'
+    OUTPUT = r'output'
+    ELSE = r'else'
     IF = r'if'
-    RELOP = r'==|!=|<|>|>=|<='
+    WHILE = r'while'
+    RELOP = r"==|!=|>=|<=|<|>"
+    CAST = r'static_cast<int>|static_cast<float>'
     ADDOP = r'\+|-'
     MULOP = r'\*|/'
     OR = r'\|\|'
     AND = r'&&'
     NOT = r'!'
-    CAST = r'static_cast<int>|static_cast<float>'
     ID = r'[a-zA-Z_][a-zA-Z0-9_]*'
+    NUM = r'\d+(\.\d*)?'
 
     def __init__(self):
         super().__init__()

@@ -1,0 +1,29 @@
+RINP a
+RINP b
+RLSS float_temp_1 a b
+JMPZ label_temp_2 float_temp_1
+ITOR float_temp_2 3
+REQL float_temp_3 float_temp_2 a
+JMPZ label_temp_2 float_temp_3
+IASN int_temp_1 1
+JUMP label_temp_1
+label_temp_2: IASN int_temp_1 0
+label_temp_1:
+JMPZ label_temp_5 int_temp_1
+ITOR float_temp_4 5
+REQL float_temp_5 a float_temp_4
+JMPZ label_temp_3 float_temp_5
+RADD float_temp_6 a b
+RPRT float_temp_6
+JUMP label_temp_4
+label_temp_3: 
+RSUB float_temp_7 a b
+RPRT float_temp_7
+RPRT a
+label_temp_4:
+JUMP label_temp_6
+label_temp_5: 
+RPRT b
+label_temp_6:
+HALT
+Adar Agai

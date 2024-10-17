@@ -5,7 +5,10 @@ class SymbolTable():
         if name not in self.symbol_table:
             self.symbol_table[name] = var_type
     def get(self, name):
-        return self.symbol_table[name]
+        try:
+            return self.symbol_table[name]
+        except KeyError:
+            return None
     def contains(self, name):
         return name in self.symbol_table
     def __str__(self):

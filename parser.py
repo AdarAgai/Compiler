@@ -4,6 +4,7 @@ from symbol_table import SymbolTable
 from quad_generator import QuadGenerator
 import sys
 from quad_result import QuadResult 
+from utils import INT, FLOAT
 
 class CPLParser(Parser):
 
@@ -32,16 +33,17 @@ class CPLParser(Parser):
             if self.symbol_table.contains(var):
                 print(f"Error: Variable '{var}' redeclared on line {p.lineno}.", file=sys.stderr)
                 self.errors_found = True
+            print(f"Adding {var} of {p.type} to symbol table")
             self.symbol_table.add(var, p.type)
         return QuadResult("") 
 
     @_('INT')
     def type(self, p):
-        return 'int'
+        return INT
 
     @_('FLOAT')
     def type(self, p):
-        return 'float'
+        return FLOAT
 
     @_('idlist "," ID')
     def idlist(self, p):
@@ -59,7 +61,7 @@ class CPLParser(Parser):
 
     @_('assignment_stmt', 'input_stmt', 'output_stmt', 'if_stmt', 'while_stmt', 'stmt_block')   
     def stmt(self, p):
-        return p[0]
+        return QuadResult(p[0].code)
 
     @_('ID "=" expression ";"')
     def assignment_stmt(self, p):
@@ -75,7 +77,7 @@ class CPLParser(Parser):
     @_('INPUT "(" ID ")" ";"')
     def input_stmt(self, p):
         if not self.symbol_table.contains(p.ID):
-            print(f"Error: Variable '{variable_name}' not declared.", file=sys.stderr)
+            print(f"Error: Variable '{p.ID}' not declared.", file=sys.stderr)
             self.errors_found = True
 
         return self.quad_generator.generate_input_stmt(p)
@@ -96,6 +98,7 @@ class CPLParser(Parser):
 
     @_('WHILE "(" boolexpr ")" stmt')      
     def while_stmt(self, p):
+
         if p.boolexpr.value is None:
             self.errors_found = True
             return QuadResult("")
@@ -131,7 +134,7 @@ class CPLParser(Parser):
     def boolterm(self, p):
         if p.boolterm.value is None or p.boolfactor.value is None:
             self.errors_found = True
-            return ""
+            return QuadResult("")
         return self.quad_generator.generate_and(p)
 
     @_('boolfactor')
@@ -153,7 +156,8 @@ class CPLParser(Parser):
         if p.expression0.value is None or p.expression1.value is None:
             self.errors_found = True
             return QuadResult("")
-        return self.quad_generator.generate_relop(p) 
+        result = self.quad_generator.generate_relop(p) 
+        return result   
 
     @_('expression ADDOP term')
     def expression(self, p):
@@ -214,8 +218,8 @@ class CPLParser(Parser):
         if not self.symbol_table.contains(p.ID):
             print(f"Error: Variable '{p.ID}' not declared.", file=sys.stderr)
             self.errors_found = True
-        return p.ID
+        return QuadResult("", p.ID)
 
     @_('NUM')
     def factor(self, p):
-        return p.NUM
+        return QuadResult("", p.NUM)
