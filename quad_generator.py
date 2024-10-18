@@ -12,9 +12,8 @@ class QuadGenerator:
     def generate_conversion(self, source_type, source_value, temp_var):
         if source_type == INT:
             return f"{ITOR} {temp_var} {source_value}"
-        elif source_type == FLOAT:
+        else:
             return f"{RTOI} {temp_var} {source_value}"
-        return None
 
     def get_type(self, expression_value):
         if expression_value.isdigit() or self.symbol_table.get(expression_value) == INT or expression_value.startswith("int_temp"):
@@ -41,7 +40,6 @@ class QuadGenerator:
 
         variable_type = self.symbol_table.get(p.ID)
         expression_type = self.get_type(p.expression.value)
-
         generated_code = f"{p.expression.code}\n"
 
         if variable_type == INT and expression_type == INT:
@@ -230,18 +228,21 @@ class QuadGenerator:
         expression_type = self.get_type(p.expression.value)
 
         term_type = self.get_type(p.term.value)
-
         result_var = ""
+
+        first_operand = p.expression.value
+        second_operand = p.term.value
+
         if expression_type == FLOAT and term_type == INT:
-            temp_var = self.generate_float_temp()
-            generated_code += self.generate_conversion(INT, p.term.value, temp_var) + "\n"
-            term_value = temp_var
+            first_operand = self.generate_float_temp()
+            generated_code += self.generate_conversion(INT, p.term.value, first_operand) + "\n"
+            second_operand = p.expression.value
             term_type = FLOAT  
             result_type = FLOAT
         elif expression_type == INT and term_type == FLOAT:
-            temp_var = self.generate_float_temp()
-            generated_code += self.generate_conversion(INT, p.expression.value, temp_var) + "\n"
-            expression_value = temp_var
+            first_operand = self.generate_float_temp()
+            generated_code += self.generate_conversion(INT, p.expression.value, first_operand) + "\n"
+            second_operand = p.term.value
             expression_type = FLOAT
             result_type = FLOAT
         elif expression_type == FLOAT and term_type == FLOAT:
@@ -250,23 +251,32 @@ class QuadGenerator:
             result_type = INT
 
         if result_type == FLOAT:
+
             result_var = self.generate_float_temp()
             if p.ADDOP == PLUS:
-                generated_code += f"{RADD} {result_var} {p.expression.value} {p.term.value}"
+                generated_code += f"{RADD} {result_var} {first_operand} {second_operand}"
             elif p.ADDOP == MINUS:
-                generated_code += f"{RSUB} {result_var} {p.expression.value} {p.term.value}"
+                generated_code += (
+                    f"{RSUB} {result_var} {first_operand} {second_operand}"
+                )
             else:
                 print(f"Error: Unsupported operator for floats: {p.ADDOP}.", file=sys.stderr)
                 raise Exception(f"Unsupported operator for floats: {p.ADDOP}")
         else:
+
             result_var = self.generate_int_temp()
             if p.ADDOP == PLUS:
-                generated_code += f"{IADD} {result_var} {p.expression.value} {p.term.value}"
+                generated_code += (
+                    f"{IADD} {result_var} {first_operand} {second_operand}"
+                )
             elif p.ADDOP == MINUS:
-                generated_code += f"{ISUB} {result_var} {p.expression.value} {p.term.value}"
+                generated_code += (
+                    f"{ISUB} {result_var} {first_operand} {second_operand}"
+                )
             else:
                 print(f"Error: Unsupported operator for integers: {p.ADDOP}.", file=sys.stderr)
                 raise Exception(f"Unsupported operator for integers: {p.ADDOP}")
+
         return QuadResult(generated_code, result_var)
 
     def generate_term(self, p):
@@ -277,37 +287,54 @@ class QuadGenerator:
         term_type = self.get_type(p.term.value)
         factor_type = self.get_type(p.factor.value)
 
+        first_operand = p.term.value
+        second_operand = p.factor.value
+
         if term_type == FLOAT and factor_type == INT:
-            temp_var = self.generate_float_temp()
-            generated_code += self.generate_conversion(INT, p.factor.value, temp_var) + "\n"
-            factor_value = temp_var
+            first_operand = self.generate_float_temp()
+            generated_code += (
+                self.generate_conversion(INT, p.factor.value, first_operand) + "\n"
+            )
+            second_operand = p.term.value
             factor_type = FLOAT  
             result_type = FLOAT 
         elif term_type == INT and factor_type == FLOAT:
-            temp_var = self.generate_float_temp()
-            generated_code += self.generate_conversion(INT, p.term.value, temp_var) + "\n"
-            term_value = temp_var
+            first_operand = self.generate_float_temp()
+            generated_code += (
+                self.generate_conversion(INT, p.term.value, first_operand) + "\n"
+            )
+            second_operand = p.factor.value
             term_type = FLOAT
             result_type = FLOAT
         elif term_type == FLOAT and factor_type == FLOAT:
+
             result_type = FLOAT
         else:
             result_type = INT
+
         if result_type == FLOAT:
             result_var = self.generate_float_temp()
             if p.MULOP == MULTIPLY:
-                generated_code += f"{RMLT} {result_var} {p.term.value} {p.factor.value}"
+                generated_code += (
+                    f"{RMLT} {result_var} {first_operand} {second_operand}"
+                )
             elif p.MULOP == DIVIDE:
-                generated_code += f"{RDIV} {result_var} {p.term.value} {p.factor.value}"
+                generated_code += (
+                    f"{RDIV} {result_var} {first_operand} {second_operand}"
+                )
             else:
                 print(f"Error: Unsupported operator for floats: {p.MULOP}.", file=sys.stderr)
                 raise Exception(f"Unsupported operator for floats: {p.MULOP}")
         else:
             result_var = self.generate_int_temp()
             if p.MULOP == MULTIPLY:
-                generated_code += f"{IMLT} {result_var} {p.term.value} {p.factor.value}"
+                generated_code += (
+                    f"{IMLT} {result_var} {first_operand} {second_operand}"
+                )
             elif p.MULOP == DIVIDE:
-                generated_code += f"{IDIV} {result_var} {p.term.value} {p.factor.value}"
+                generated_code += (
+                    f"{IDIV} {result_var} {first_operand} {second_operand}"
+                )
             else:
                 print(f"Error: Unsupported operator for integers: {p.MULOP}.", file=sys.stderr)
                 raise Exception(f"Unsupported operator for integers: {p.MULOP}")

@@ -166,7 +166,8 @@ class CPLParser(Parser):
             return QuadResult("")
         try:
             return self.quad_generator.generate_expression(p)
-        except Exception:
+        except Exception as e:
+            print(e)
             self.errors_found = True
             return QuadResult("")
 
@@ -184,7 +185,8 @@ class CPLParser(Parser):
             return QuadResult("")
         try:
             return self.quad_generator.generate_term(p)
-        except Exception:
+        except Exception as e:
+            print(e)
             self.errors_found = True
             return QuadResult("")
 
