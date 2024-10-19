@@ -8,6 +8,9 @@ from utils import INT, FLOAT
 
 class CPLParser(Parser):
 
+    # Every time there is an error, I delete the code and continue to search
+    # for more errors, note that the symbol table remains intact
+
     tokens = CPLLexer.tokens
 
     def __init__(self):
@@ -33,7 +36,6 @@ class CPLParser(Parser):
             if self.symbol_table.contains(var):
                 print(f"Error: Variable '{var}' redeclared on line {p.lineno}.", file=sys.stderr)
                 self.errors_found = True
-            print(f"Adding {var} of {p.type} to symbol table")
             self.symbol_table.add(var, p.type)
         return QuadResult("") 
 
@@ -69,7 +71,7 @@ class CPLParser(Parser):
             print(f"Error: Variable '{p.ID}' not declared.", file=sys.stderr)
             self.errors_found = True
         try:
-            return self.quad_generator.generate_assignment_stmt(p)
+            return self.quad_generator.generate_assignment(p)
         except Exception:
             self.errors_found = True
             return QuadResult("")
@@ -79,22 +81,21 @@ class CPLParser(Parser):
         if not self.symbol_table.contains(p.ID):
             print(f"Error: Variable '{p.ID}' not declared.", file=sys.stderr)
             self.errors_found = True
-
-        return self.quad_generator.generate_input_stmt(p)
+        return self.quad_generator.generate_input(p)
 
     @_('OUTPUT "(" expression ")" ";"')
     def output_stmt(self, p):
         if p.expression.value is None: # do not need to print error here, it is already handled in expression
             self.errors_found = True
             return QuadResult("")
-        return self.quad_generator.generate_output_stmt(p)
+        return self.quad_generator.generate_output(p)
 
     @_('IF "(" boolexpr ")" stmt ELSE stmt')
     def if_stmt(self, p):
         if p.boolexpr.value is None:
             self.errors_found = True
             return QuadResult("")
-        return self.quad_generator.generate_if_stmt(p, p.stmt0.code, p.stmt1.code) 
+        return self.quad_generator.generate_if(p, p.stmt0.code, p.stmt1.code) 
 
     @_('WHILE "(" boolexpr ")" stmt')      
     def while_stmt(self, p):
@@ -102,7 +103,7 @@ class CPLParser(Parser):
         if p.boolexpr.value is None:
             self.errors_found = True
             return QuadResult("")
-        return self.quad_generator.generate_while_stmt(p)
+        return self.quad_generator.generate_while(p)
 
     @_('"{" stmtlist "}"')
     def stmt_block(self, p):
@@ -225,3 +226,14 @@ class CPLParser(Parser):
     @_('NUM')
     def factor(self, p):
         return QuadResult("", p.NUM)
+
+    def error(self, p):
+        if not p:
+            print("Syntax error: EOF", file=sys.stderr) # useful for a program that has no {} for example
+        else:
+            print(f"Syntax error at line {p.lineno}.", file=sys.stderr)
+
+        self.errors_found = True
+        
+        self.restart() # restart the parser so we can continue to search for more errors
+        

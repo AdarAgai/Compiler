@@ -3,6 +3,7 @@ import sys
 from quad_result import QuadResult
 
 class QuadGenerator:
+
     def __init__(self, symbol_table):
         self.temp_int_count = 0
         self.temp_float_count = 0
@@ -36,7 +37,7 @@ class QuadGenerator:
         self.temp_label_count += 1
         return f"label_temp_{self.temp_label_count}"
 
-    def generate_assignment_stmt(self, p):
+    def generate_assignment(self, p):
 
         variable_type = self.symbol_table.get(p.ID)
         expression_type = self.get_type(p.expression.value)
@@ -60,20 +61,20 @@ class QuadGenerator:
             print(f"Error: Type mismatch on line {p.lineno}.", file=sys.stderr)
             raise Exception("Type mismatch")
 
-    def generate_input_stmt(self, p):
+    def generate_input(self, p):
         if self.symbol_table.get(p.ID) == INT:
             return QuadResult(f"{IINP} {p.ID}")
         else:
             return QuadResult(f"{RINP} {p.ID}")
 
-    def generate_output_stmt(self, p):
+    def generate_output(self, p):
         generated_code = f"{p.expression.code}\n"
         if self.get_type(p.expression.value) == INT:
             return QuadResult(generated_code + f"{IPRT} {p.expression.value}")
         else:
             return QuadResult(generated_code + f"{RPRT} {p.expression.value}")
 
-    def generate_if_stmt(self, p, if_code, else_code):
+    def generate_if(self, p, if_code, else_code):
         else_label = self.generate_temp_label()
         end_label = self.generate_temp_label()
         code = ""
@@ -85,7 +86,7 @@ class QuadGenerator:
         code += f"{end_label}:\n"
         return QuadResult(code)
 
-    def generate_while_stmt(self, p):
+    def generate_while(self, p):
         start_label = self.generate_temp_label()
         end_label = self.generate_temp_label()
         code = ""
@@ -356,7 +357,7 @@ class QuadGenerator:
             return QuadResult(generated_code, cast_result_var)
         else:
             print(
-                f"Error: Cannot cast {expression_type} to {target_type}.",
+                f"Error: Cannot cast {expression_type} to w{target_type}.",
                 file=sys.stderr,
             )
             raise Exception(f"Cannot cast {expression_type} to {target_type}")
