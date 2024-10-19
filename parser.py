@@ -4,7 +4,7 @@ from symbol_table import SymbolTable
 from quad_generator import QuadGenerator
 import sys
 from quad_result import QuadResult 
-from utils import INT, FLOAT
+from consts import INT, FLOAT
 
 class CPLParser(Parser):
 
@@ -49,17 +49,11 @@ class CPLParser(Parser):
 
     @_('idlist "," ID')
     def idlist(self, p):
-        if p.ID in p.idlist or self.symbol_table.contains(p.ID):
-            print(f"Error: Variable '{p.ID}' redeclared on line {p.lineno}.", file=sys.stderr)
-            self.errors_found = True
-        return p.idlist + [p.ID] # we don't use the code so we don't need the object
+        return p.idlist + [p.ID] # return a list of IDs so we can iterate over them
 
     @_('ID')
     def idlist(self, p):
-        if self.symbol_table.contains(p.ID):
-            print(f"Error: Variable '{p.ID}' redeclared on line {p.lineno}.", file=sys.stderr)
-            self.errors_found = True
-        return [p.ID]
+        return [p.ID] # return a list of the ID so it can iterable
 
     @_('assignment_stmt', 'input_stmt', 'output_stmt', 'if_stmt', 'while_stmt', 'stmt_block')   
     def stmt(self, p):
@@ -85,7 +79,7 @@ class CPLParser(Parser):
 
     @_('OUTPUT "(" expression ")" ";"')
     def output_stmt(self, p):
-        if p.expression.value is None: # do not need to print error here, it is already handled in expression
+        if p.expression.value is None:
             self.errors_found = True
             return QuadResult("")
         return self.quad_generator.generate_output(p)
@@ -99,7 +93,6 @@ class CPLParser(Parser):
 
     @_('WHILE "(" boolexpr ")" stmt')      
     def while_stmt(self, p):
-
         if p.boolexpr.value is None:
             self.errors_found = True
             return QuadResult("")

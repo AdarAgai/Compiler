@@ -19,61 +19,50 @@ ITOR float_temp_7 5
 RADD float_temp_8 float_temp_7 b
 RMLT float_temp_9 a float_temp_8
 RASN tf1 float_temp_9
-RTOI int_temp_4 b
-IASN c int_temp_4
-RTOI int_temp_5 5.8
-IASN c int_temp_5
-ITOR float_temp_10 c
-RMLT float_temp_11 float_temp_10 b
-RADD float_temp_12 a float_temp_11
-ITOR float_temp_13 5
-RSUB float_temp_14 float_temp_13 float_temp_12
-RTOI int_temp_6 float_temp_14
-IASN c int_temp_6
-RMLT float_temp_15 73.5 a
-RSUB float_temp_16 b float_temp_15
-IMLT int_temp_7 5 30
-IADD int_temp_8 c int_temp_7
-ITOR float_temp_17 int_temp_8
-RGRT float_temp_18 float_temp_16 float_temp_17
-REQL float_temp_18 float_temp_19 0
-IEQL int_temp_9 float_temp_18 0
-JMPZ label_temp_4 int_temp_9
-IASN int_temp_14 1
+RMLT float_temp_10 73.5 a
+RSUB float_temp_11 b float_temp_10
+IMLT int_temp_4 5 30
+IADD int_temp_5 c int_temp_4
+ITOR float_temp_12 int_temp_5
+RGRT float_temp_13 float_temp_11 float_temp_12
+REQL float_temp_13 float_temp_14 0
+IEQL int_temp_6 float_temp_13 0
+JMPZ label_temp_4 int_temp_6
+IASN int_temp_11 1
 JUMP label_temp_3
 label_temp_4: 
-IADD int_temp_10 c 5
-ITOR float_temp_20 int_temp_10
-RGRT float_temp_21 a float_temp_20
-JMPZ label_temp_2 float_temp_21
-IADD int_temp_11 5 3
-ILSS int_temp_12 int_temp_11 2
-JMPZ label_temp_2 int_temp_12
-IASN int_temp_13 1
+IADD int_temp_7 c 5
+ITOR float_temp_15 int_temp_7
+RGRT float_temp_16 a float_temp_15
+JMPZ label_temp_2 float_temp_16
+IADD int_temp_8 5 3
+ILSS int_temp_9 int_temp_8 2
+JMPZ label_temp_2 int_temp_9
+IASN int_temp_10 1
 JUMP label_temp_1
-label_temp_2: IASN int_temp_13 0
+label_temp_2: IASN int_temp_10 0
 label_temp_1:
-JMPZ label_temp_4 int_temp_13
-IASN int_temp_14 1
+JMPZ label_temp_4 int_temp_10
+IASN int_temp_11 1
 label_temp_3:
-JMPZ label_temp_5 int_temp_14
-ITOR int_temp_15 5
-RASN a int_temp_15
+JMPZ label_temp_5 int_temp_11
+ITOR int_temp_12 5
+RASN a int_temp_12
 JUMP label_temp_6
 label_temp_5: 
-ITOR int_temp_16 7
-RASN a int_temp_16
+ITOR int_temp_13 7
+RASN a int_temp_13
 label_temp_6:
 label_temp_7:
-ITOR float_temp_22 5
-RADD float_temp_23 float_temp_22 b
-RLSS float_temp_24 a float_temp_23
-JMPZ label_temp_8 float_temp_24
+ITOR float_temp_17 5
+RADD float_temp_18 float_temp_17 b
+RLSS float_temp_19 a float_temp_18
+JMPZ label_temp_8 float_temp_19
 IINP c
-IADD int_temp_17 c 1
-IASN c int_temp_17
-ITOR int_temp_18 c
-RASN a int_temp_18
+IADD int_temp_14 c 1
+IASN c int_temp_14
+ITOR int_temp_15 c
+RASN a int_temp_15
 JUMP label_temp_7
 label_temp_8:
 HALT

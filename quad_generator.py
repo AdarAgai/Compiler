@@ -1,4 +1,4 @@
-from utils import *
+from consts import *
 import sys
 from quad_result import QuadResult
 
