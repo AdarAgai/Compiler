@@ -52,5 +52,5 @@ class CPLLexer(Lexer):
         self.lineno = 1
 
     def error(self, t):
-        print(f"Syntax error: illegal character {t.value[0]} at line {self.lineno}", file=sys.stderr)
+        print(f"Lexical error: illegal character {t.value[0]} at line {self.lineno}", file=sys.stderr)
         self.index += 1  

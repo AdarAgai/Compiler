@@ -8,8 +8,7 @@ from consts import INT, FLOAT
 
 class CPLParser(Parser):
 
-    # Every time there is an error, I delete the code and continue to search
-    # for more errors, note that the symbol table remains intact
+    # If there are errors, we will return an empty QuadResult object so we can continue to search for more errors
 
     tokens = CPLLexer.tokens
 
